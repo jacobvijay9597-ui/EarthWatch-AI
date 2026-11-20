@@ -1,0 +1,98 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated traveller profile and alert subscription settings.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Firebase Auth UID of the owner." },
+        "displayName": { "type": "string", "description": "Traveller display name." },
+        "email": { "type": "string", "description": "Owner email address (isolated to owner/admin)." },
+        "subscribedCorridors": { "type": "array", "description": "Up to 10 subscribed Nilgiris corridor IDs." },
+        "alertsEnabled": { "type": "boolean", "description": "Whether location-based alert subscriptions are active." },
+        "riskThreshold": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH"], "description": "Minimum alert severity threshold." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp on creation." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp on update." }
+      },
+      "required": ["userId", "displayName", "email", "subscribedCorridors", "alertsEnabled", "riskThreshold", "createdAt", "updatedAt"]
+    },
+    "CommunityReport": {
+      "title": "CommunityReport",
+      "description": "Traveller-submitted road blockage or landslide report, labeled unverified until admin confirmation.",
+      "type": "object",
+      "properties": {
+        "reporterUid": { "type": "string", "description": "Firebase Auth UID of the reporter." },
+        "reporterName": { "type": "string", "description": "Public display label of the reporter." },
+        "corridorId": { "type": "string", "description": "Corridor identifier in the Nilgiris network." },
+        "corridorName": { "type": "string", "description": "Human-readable corridor name." },
+        "locationLabel": { "type": "string", "description": "Specific hairpin bend, landmark, or milestone." },
+        "incidentType": { "type": "string", "enum": ["LANDSLIDE", "ROAD_BLOCKAGE", "ROCKFALL", "WATERLOGGING", "CRACK_SUBSIDENCE"] },
+        "severity": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH"] },
+        "description": { "type": "string", "description": "Detailed observation of road/slope conditions." },
+        "observedTimeText": { "type": "string", "description": "Observed time text reported by the traveller." },
+        "verificationStatus": { "type": "string", "enum": ["UNVERIFIED", "CONFIRMED", "RESOLVED", "DISMISSED"] },
+        "visibility": { "type": "string", "enum": ["PUBLIC", "HIDDEN"] },
+        "adminNotes": { "type": "string", "description": "Optional admin review notes." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp on creation." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp on update." }
+      },
+      "required": ["reporterUid", "reporterName", "corridorId", "corridorName", "locationLabel", "incidentType", "severity", "description", "observedTimeText", "verificationStatus", "visibility", "createdAt", "updatedAt"]
+    },
+    "OfficialAdvisory": {
+      "title": "OfficialAdvisory",
+      "description": "Admin-managed official warnings, closures, and verified incident advisories.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Advisory headline." },
+        "corridorId": { "type": "string", "description": "Corridor identifier." },
+        "corridorName": { "type": "string", "description": "Human-readable corridor name." },
+        "severity": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"] },
+        "sourceType": { "type": "string", "enum": ["OFFICIAL_CLOSURE", "OFFICIAL_ADVISORY", "ADMIN_VERIFIED"] },
+        "sourceLabel": { "type": "string", "description": "Issuing authority or verification label." },
+        "summary": { "type": "string", "description": "Detailed advisory instructions." },
+        "roadClosed": { "type": "boolean", "description": "Whether the road is officially closed." },
+        "published": { "type": "boolean", "description": "Whether visible to travellers." },
+        "simulatedDemo": { "type": "boolean", "description": "Marks hackathon demonstration records explicitly." },
+        "createdByUid": { "type": "string", "description": "Admin UID." },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "corridorId", "corridorName", "severity", "sourceType", "sourceLabel", "summary", "roadClosed", "published", "simulatedDemo", "createdByUid", "createdAt", "updatedAt"]
+    },
+    "RoadCorridor": {
+      "title": "RoadCorridor",
+      "description": "Admin-managed road corridor operational status.",
+      "type": "object",
+      "properties": {
+        "corridorName": { "type": "string" },
+        "status": { "type": "string", "enum": ["OPEN", "CAUTION", "CLOSURE_REPORTED", "CLOSED_OFFICIAL"] },
+        "statusNote": { "type": "string" },
+        "verifiedSafety": { "type": "boolean" },
+        "active": { "type": "boolean" },
+        "simulatedDemo": { "type": "boolean" },
+        "updatedByUid": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["corridorName", "status", "statusNote", "verifiedSafety", "active", "simulatedDemo", "updatedByUid", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Per-user profile and alert subscriptions."
+    },
+    "/community_reports/{reportId}": {
+      "schema": { "$ref": "#/entities/CommunityReport" },
+      "description": "Community-submitted hazard and road blockage reports."
+    },
+    "/official_advisories/{advisoryId}": {
+      "schema": { "$ref": "#/entities/OfficialAdvisory" },
+      "description": "Official and admin-verified road advisories."
+    },
+    "/road_corridors/{corridorId}": {
+      "schema": { "$ref": "#/entities/RoadCorridor" },
+      "description": "Admin-managed corridor closure and verification statuses."
+    }
+  }
+}

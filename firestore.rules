@@ -1,0 +1,214 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- GLOBAL PRIMITIVE HELPERS ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isBootstrappedAdmin() {
+      return isSignedIn() &&
+             'email_verified' in request.auth.token &&
+             request.auth.token.email_verified == true &&
+             'email' in request.auth.token &&
+             request.auth.token.email == 'jacobvijay9597@gmail.com';
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        isBootstrappedAdmin() ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // --- SCHEMA VALIDATION HELPERS ---
+    function isValidUserProfile(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 80 &&
+             data.email is string && data.email.size() >= 3 && data.email.size() <= 120 &&
+             data.subscribedCorridors is list && data.subscribedCorridors.size() <= 10 &&
+             (data.subscribedCorridors.size() == 0 || data.subscribedCorridors[0] is string) &&
+             data.alertsEnabled is bool &&
+             data.riskThreshold in ['LOW', 'MEDIUM', 'HIGH'] &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidCommunityReport(data) {
+      return data.reporterUid is string && data.reporterUid.size() >= 1 && data.reporterUid.size() <= 128 &&
+             data.reporterName is string && data.reporterName.size() >= 1 && data.reporterName.size() <= 60 &&
+             data.corridorId is string && data.corridorId.size() >= 2 && data.corridorId.size() <= 64 &&
+             data.corridorName is string && data.corridorName.size() >= 2 && data.corridorName.size() <= 100 &&
+             data.locationLabel is string && data.locationLabel.size() >= 2 && data.locationLabel.size() <= 120 &&
+             data.incidentType in ['LANDSLIDE', 'ROAD_BLOCKAGE', 'ROCKFALL', 'WATERLOGGING', 'CRACK_SUBSIDENCE'] &&
+             data.severity in ['LOW', 'MEDIUM', 'HIGH'] &&
+             data.description is string && data.description.size() >= 5 && data.description.size() <= 500 &&
+             data.observedTimeText is string && data.observedTimeText.size() >= 2 && data.observedTimeText.size() <= 60 &&
+             data.verificationStatus in ['UNVERIFIED', 'CONFIRMED', 'RESOLVED', 'DISMISSED'] &&
+             data.visibility in ['PUBLIC', 'HIDDEN'] &&
+             (!('adminNotes' in data) || (data.adminNotes is string && data.adminNotes.size() <= 300)) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidOfficialAdvisory(data) {
+      return data.title is string && data.title.size() >= 3 && data.title.size() <= 120 &&
+             data.corridorId is string && data.corridorId.size() >= 2 && data.corridorId.size() <= 64 &&
+             data.corridorName is string && data.corridorName.size() >= 2 && data.corridorName.size() <= 100 &&
+             data.severity in ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] &&
+             data.sourceType in ['OFFICIAL_CLOSURE', 'OFFICIAL_ADVISORY', 'ADMIN_VERIFIED'] &&
+             data.sourceLabel is string && data.sourceLabel.size() >= 2 && data.sourceLabel.size() <= 100 &&
+             data.summary is string && data.summary.size() >= 5 && data.summary.size() <= 500 &&
+             data.roadClosed is bool &&
+             data.published is bool &&
+             data.simulatedDemo is bool &&
+             data.createdByUid is string && data.createdByUid.size() >= 1 && data.createdByUid.size() <= 128 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidRoadCorridor(data) {
+      return data.corridorName is string && data.corridorName.size() >= 2 && data.corridorName.size() <= 100 &&
+             data.status in ['OPEN', 'CAUTION', 'CLOSURE_REPORTED', 'CLOSED_OFFICIAL'] &&
+             data.statusNote is string && data.statusNote.size() >= 2 && data.statusNote.size() <= 300 &&
+             data.verifiedSafety is bool &&
+             data.active is bool &&
+             data.simulatedDemo is bool &&
+             data.updatedByUid is string && data.updatedByUid.size() >= 1 && data.updatedByUid.size() <= 128 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    // --- COLLECTION RULES ---
+    match /admins/{adminUid} {
+      allow get: if isSignedIn() && (request.auth.uid == adminUid || isAdmin());
+      allow list, write: if false;
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+
+      allow create: if isSignedIn() &&
+                       isValidId(userId) &&
+                       isOwner(userId) &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().keys().hasAll(['userId', 'displayName', 'email', 'subscribedCorridors', 'alertsEnabled', 'riskThreshold', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['userId', 'displayName', 'email', 'subscribedCorridors', 'alertsEnabled', 'riskThreshold', 'createdAt', 'updatedAt']) &&
+                       isValidUserProfile(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidId(userId) &&
+                       isValidUserProfile(incoming()) &&
+                       (isOwner(userId) || isAdmin()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'email', 'subscribedCorridors', 'alertsEnabled', 'riskThreshold', 'updatedAt']);
+
+      allow delete: if isSignedIn() && isValidId(userId) && (isOwner(userId) || isAdmin());
+    }
+
+    match /community_reports/{reportId} {
+      allow get: if isSignedIn() && isValidId(reportId) && (
+        existing().reporterUid == request.auth.uid ||
+        existing().visibility == 'PUBLIC' ||
+        isAdmin()
+      );
+      allow list: if isSignedIn() && (
+        resource.data.reporterUid == request.auth.uid ||
+        resource.data.visibility == 'PUBLIC' ||
+        isAdmin()
+      );
+
+      allow create: if isSignedIn() &&
+                       isValidId(reportId) &&
+                       isValidCommunityReport(incoming()) &&
+                       incoming().reporterUid == request.auth.uid &&
+                       incoming().verificationStatus == 'UNVERIFIED' &&
+                       incoming().visibility == 'PUBLIC' &&
+                       !('adminNotes' in incoming()) &&
+                       incoming().keys().hasAll(['reporterUid', 'reporterName', 'corridorId', 'corridorName', 'locationLabel', 'incidentType', 'severity', 'description', 'observedTimeText', 'verificationStatus', 'visibility', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['reporterUid', 'reporterName', 'corridorId', 'corridorName', 'locationLabel', 'incidentType', 'severity', 'description', 'observedTimeText', 'verificationStatus', 'visibility', 'createdAt', 'updatedAt']);
+
+      allow update: if isSignedIn() &&
+                       isValidId(reportId) &&
+                       isValidCommunityReport(incoming()) &&
+                       incoming().reporterUid == existing().reporterUid &&
+                       incoming().createdAt == existing().createdAt && (
+                         (isAdmin() && incoming().diff(existing()).affectedKeys().hasOnly(['verificationStatus', 'visibility', 'adminNotes', 'severity', 'updatedAt'])) ||
+                         (existing().reporterUid == request.auth.uid &&
+                          existing().verificationStatus == 'UNVERIFIED' &&
+                          incoming().verificationStatus == 'UNVERIFIED' &&
+                          incoming().visibility == existing().visibility &&
+                          incoming().diff(existing()).affectedKeys().hasOnly(['description', 'severity', 'locationLabel', 'observedTimeText', 'updatedAt']))
+                       );
+
+      allow delete: if isSignedIn() && isValidId(reportId) && (
+        isAdmin() ||
+        (existing().reporterUid == request.auth.uid && existing().verificationStatus == 'UNVERIFIED')
+      );
+    }
+
+    match /official_advisories/{advisoryId} {
+      allow get: if isSignedIn() && isValidId(advisoryId) && (existing().published == true || isAdmin());
+      allow list: if isSignedIn() && (resource.data.published == true || isAdmin());
+
+      allow create: if isAdmin() &&
+                       isValidId(advisoryId) &&
+                       isValidOfficialAdvisory(incoming()) &&
+                       incoming().createdByUid == request.auth.uid &&
+                       incoming().keys().hasAll(['title', 'corridorId', 'corridorName', 'severity', 'sourceType', 'sourceLabel', 'summary', 'roadClosed', 'published', 'simulatedDemo', 'createdByUid', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['title', 'corridorId', 'corridorName', 'severity', 'sourceType', 'sourceLabel', 'summary', 'roadClosed', 'published', 'simulatedDemo', 'createdByUid', 'createdAt', 'updatedAt']);
+
+      allow update: if isAdmin() &&
+                       isValidId(advisoryId) &&
+                       isValidOfficialAdvisory(incoming()) &&
+                       incoming().createdByUid == existing().createdByUid &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['title', 'corridorId', 'corridorName', 'severity', 'sourceType', 'sourceLabel', 'summary', 'roadClosed', 'published', 'simulatedDemo', 'updatedAt']);
+
+      allow delete: if isAdmin() && isValidId(advisoryId);
+    }
+
+    match /road_corridors/{corridorId} {
+      allow get: if isSignedIn() && isValidId(corridorId) && (existing().active == true || isAdmin());
+      allow list: if isSignedIn() && (resource.data.active == true || isAdmin());
+
+      allow create: if isAdmin() &&
+                       isValidId(corridorId) &&
+                       isValidRoadCorridor(incoming()) &&
+                       incoming().updatedByUid == request.auth.uid &&
+                       incoming().keys().hasAll(['corridorName', 'status', 'statusNote', 'verifiedSafety', 'active', 'simulatedDemo', 'updatedByUid', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['corridorName', 'status', 'statusNote', 'verifiedSafety', 'active', 'simulatedDemo', 'updatedByUid', 'createdAt', 'updatedAt']);
+
+      allow update: if isAdmin() &&
+                       isValidId(corridorId) &&
+                       isValidRoadCorridor(incoming()) &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['corridorName', 'status', 'statusNote', 'verifiedSafety', 'active', 'simulatedDemo', 'updatedByUid', 'updatedAt']);
+
+      allow delete: if isAdmin() && isValidId(corridorId);
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "EarthWatch AI",
+  "description": "AI-powered landslide prediction and traveller safety system for Ooty, Coonoor, and the Nilgiris hill region.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

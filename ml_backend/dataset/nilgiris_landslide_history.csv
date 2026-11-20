@@ -1,0 +1,61 @@
+corridor_segment,event_year,rainfall_intensity_mm_hr,rainfall_duration_hours,soil_moisture_m3_m3,slope_angle_deg,terrain_elevation_m,historical_landslide_count,landslide_occurred,risk_label
+Coimbatore-Kallar NH181,2009,38.4,48,0.46,32,1180,11,1,HIGH
+Marappalam-Burliar NH181,2009,42.0,64,0.47,32,1180,9,1,HIGH
+Marappalam-Burliar NH181,2021,26.5,56,0.43,32,1180,9,1,HIGH
+Kallar Hairpins NH181,2021,21.0,42,,28,640,9,1,HIGH
+Coonoor-Burliar NH181,2019,19.5,38,0.41,30,1420,9,1,HIGH
+Kallar Hairpins NH181,2022,16.8,36,0.39,28,640,11,1,HIGH
+Kalhatti Escarpment,2019,22.4,30,0.42,35,1610,7,1,HIGH
+Kalhatti Hairpin 18,2022,18.2,34,,35,1610,7,1,HIGH
+Gudalur-Naduvattam,2020,24.8,60,0.45,25,1860,6,1,HIGH
+Naduvattam Frog Hill,2023,17.6,52,0.44,25,1860,6,1,HIGH
+Aruvankadu-Ketti NH181,2018,15.5,44,0.38,21,1980,4,1,HIGH
+Kunjapanai Curve SH15,2020,18.9,40,0.40,24,1260,3,1,HIGH
+Burliar Gorge NH181,2017,29.0,28,0.42,32,1180,11,1,HIGH
+Coonoor-Wellington,2021,14.2,46,,23,1850,4,1,HIGH
+Kalhatti Upper Bends,2020,20.5,24,0.39,34,1750,7,1,HIGH
+Gudalur Monsoon Cut,2019,27.0,68,0.46,26,1540,6,1,HIGH
+Burliar Bridge Cut,2023,31.5,32,0.44,31,1120,11,1,HIGH
+Ooty Doddabetta East,2019,19.0,48,0.41,22,2240,3,1,HIGH
+Kallar Bend 3,2020,17.0,32,0.37,29,720,9,1,HIGH
+Naduvattam Pykara Cut,2022,22.1,54,,25,1910,6,1,HIGH
+Marappalam Gorge,2016,12.4,24,0.34,32,1180,9,0,MEDIUM
+Kallar Foothill Cut,2023,9.8,20,0.32,28,640,11,0,MEDIUM
+Aruvankadu Ketti Cut,2023,8.5,26,0.33,21,1980,4,1,MEDIUM
+Kunjapanai SH15,2022,7.2,18,,24,1260,3,1,MEDIUM
+Kalhatti Escarpment,2021,8.9,14,0.29,35,1610,7,0,MEDIUM
+Gudalur Naduvattam,2021,11.0,28,0.35,25,1860,6,0,MEDIUM
+Coonoor Escarpment,2020,9.2,22,0.31,26,1850,9,0,MEDIUM
+Kotagiri Ridge SH15,2019,6.8,20,0.30,22,1793,3,0,MEDIUM
+Burliar Lower Ghat,2022,10.5,16,,30,980,11,1,MEDIUM
+Ketti Valley Wall,2023,6.4,24,0.32,21,1980,4,1,MEDIUM
+Masinagudi Sigur Cut,2021,7.5,15,0.28,33,1240,7,0,MEDIUM
+Ooty Approach NH181,2022,8.1,19,0.31,19,2200,4,0,MEDIUM
+Gudalur Valley Slope,2023,9.6,21,,24,1320,6,0,MEDIUM
+Kunjapanai Upper SH15,2021,6.0,16,0.29,23,1450,3,0,MEDIUM
+Coonoor Tea Terrace,2022,7.8,18,0.30,21,1820,4,0,MEDIUM
+Kallar Bend 1,2020,8.2,12,0.27,28,580,9,0,MEDIUM
+Doddabetta Saddle,2023,5.9,18,0.31,19,2290,3,0,MEDIUM
+Burliar Mid Gorge,2021,11.3,17,0.33,31,1140,11,0,MEDIUM
+Naduvattam Slope,2020,10.1,22,0.34,25,1810,6,0,MEDIUM
+Kalhatti Mid Hairpins,2023,7.9,11,,35,1580,7,0,MEDIUM
+Coimbatore Plains NH181,2023,0.4,2,0.16,4,411,2,0,LOW
+Mettupalayam Foothills,2023,1.2,3,0.18,9,314,2,0,LOW
+Coonoor Dry Season,2023,0.0,0,0.15,21,1850,4,0,LOW
+Ooty Plateau Winter,2023,0.2,1,0.19,16,2240,4,0,LOW
+Kotagiri Dry Ridge,2022,0.8,2,0.17,22,1793,3,0,LOW
+Gudalur Pre-Monsoon,2023,1.8,4,,24,1072,6,0,LOW
+Masinagudi Dry Foothills,2023,0.0,0,0.14,18,960,7,0,LOW
+Kallar Dry Afternoon,2022,0.5,2,0.18,28,640,9,0,LOW
+Ketti Light Drizzle,2022,2.1,5,0.21,21,1980,4,0,LOW
+Kunjapanai Clear SH15,2023,0.0,0,0.16,24,1260,3,0,LOW
+Coonoor Light Shower,2021,2.8,6,,21,1850,4,0,LOW
+Ooty Clear Morning,2023,0.0,0,0.17,15,2240,4,0,LOW
+Coimbatore Light Rain,2022,3.4,4,0.20,5,411,2,0,LOW
+Mettupalayam Light Rain,2022,2.5,4,0.19,10,314,3,0,LOW
+Kotagiri Light Mist,2023,1.5,6,0.22,19,1793,3,0,LOW
+Kalhatti Dry Season,2022,0.0,0,0.15,35,1610,7,0,LOW
+Naduvattam Clear,2023,1.1,3,0.20,25,1860,6,0,LOW
+Burliar Dry Morning,2023,0.0,0,,32,1180,9,0,LOW
+Aruvankadu Clear,2022,0.6,2,0.17,21,1980,4,0,LOW
+Doddabetta Mist,2023,1.9,5,0.22,19,2290,3,0,LOW

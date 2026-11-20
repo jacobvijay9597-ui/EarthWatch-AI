@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">EarthWatch AI</string>
+    <string name="location_permission_rationale">Enable precise GPS location to display your real-time position relative to Nilgiris landslide zones, rainfall stations, and road closures.</string>
+    <string name="location_approximate_notice">Approximate location active. Upgrade to precise GPS for meter-level situational awareness on narrow ghat hairpins.</string>
+    <string name="location_denied_settings_notice">Location access was denied. Open App Settings to enable Fine Location for live map tracking.</string>
+    <string name="action_enable_fine_location">Enable Fine Location</string>
+    <string name="action_upgrade_precise_location">Upgrade to Precise GPS</string>
+    <string name="action_open_location_settings">Open Settings</string>
+</resources>
